@@ -1,0 +1,58 @@
+name: transaction_app
+description: A transaction management app built with Flutter.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  phone_numbers_parser: ^8.0.0
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  another_telephony: ^0.4.1
+  timezone: ^0.8.0
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.3.2
+  flutter_secure_storage: ^9.2.2
+  path_provider: ^2.1.2
+  share_plus: ^7.2.1
+  csv: ^5.0.2
+  device_info_plus: ^10.1.0
+  battery_plus: ^7.0.0
+  flutter_foreground_task: ^6.1.1
+  local_auth: ^2.3.0
+  flutter_background_service: ^5.0.5
+  flutter_background_service_android: ^6.3.1
+  flutter_overlay_window: ^0.4.0
+  google_fonts: ^6.1.0
+  shimmer: ^3.0.0
+  connectivity_plus: ^6.1.0
+  supabase_flutter: ^2.8.1
+  flutter_native_splash: any
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#1A1A1A"
+  adaptive_icon_foreground: "assets/images/logo.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+
+flutter_native_splash:
+  color: "#1A1A1A"
+  image: "assets/images/logo.png"
+  color_dark: "#1A1A1A"
