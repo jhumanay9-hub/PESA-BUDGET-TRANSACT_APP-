@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#1A1A1A</color>
+    <!-- Splash Screen Background - Light Mint -->
+    <color name="splash_background">#F0F9F4</color>
+
+    <!-- Mint Brand Colors -->
+    <color name="mint_primary">#2ECC71</color>
+    <color name="mint_dark">#27AE60</color>
+    <color name="mint_light">#F0F9F4</color>
+
+    <!-- UI Colors -->
+    <color name="charcoal">#2C3E50</color>
+    <color name="slate_gray">#95A5A6</color>
+    <color name="white">#FFFFFF</color>
+	<color name="ic_launcher_background">#0A0E0C</color>
 </resources>

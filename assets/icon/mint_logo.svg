@@ -1,0 +1,48 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#FFFFFF"/>
+
+  <!-- Emerald Green Background Circle (slightly smaller) -->
+  <circle cx="256" cy="256" r="240" fill="#2ECC71"/>
+
+  <!-- Mint Leaf Shape (stylized, organic) -->
+  <path d="M256 100
+           C256 100 200 150 180 220
+           C160 290 200 380 256 420
+           C312 380 352 290 332 220
+           C312 150 256 100 256 100Z"
+        fill="#FFFFFF" opacity="0.95"/>
+
+  <!-- Inner Leaf Detail -->
+  <path d="M256 130
+           C256 130 220 170 205 220
+           C190 270 210 340 256 380
+           C302 340 322 270 307 220
+           C292 170 256 130 256 130Z"
+        fill="#2ECC71" opacity="0.3"/>
+
+  <!-- Lightning Bolt (upward, geometric, integrated with leaf) -->
+  <path d="M270 160
+           L245 230
+           L275 230
+           L250 310
+           L285 220
+           L255 220
+           Z"
+        fill="#2ECC71"
+        stroke="#FFFFFF"
+        stroke-width="3"
+        stroke-linejoin="round"/>
+
+  <!-- Bolt Highlight -->
+  <path d="M265 175
+           L252 215
+           L265 215
+           Z"
+        fill="#FFFFFF"
+        opacity="0.6"/>
+
+  <!-- Sprout accent at top -->
+  <ellipse cx="256" cy="95" rx="12" ry="20" fill="#FFFFFF" opacity="0.8"/>
+  <ellipse cx="256" cy="88" rx="6" ry="12" fill="#2ECC71" opacity="0.5"/>
+</svg>

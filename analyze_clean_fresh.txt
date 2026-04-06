@@ -1,0 +1,69 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+
+enum TransactionType { income, expense, transfer, unknown }
+
+class TransactionModel {
+  final String id;           // M-PESA ID (e.g., RK82IDK92)
+  final double amount;
+  final String body;         // The raw SMS for diagnostic history
+  final DateTime date;
+  final String sender;       // e.g., 'KPLC' or '0722...'
+  final TransactionType type;
+  final String category;     // For the "Mint" UI sorting
+  final String accountType;  // For the "Page Flip" (Personal vs Business)
+  final bool isSynced;       // For Supabase status tracking
+
+  TransactionModel({
+    required this.id,
+    required this.amount,
+    required this.body,
+    required this.date,
+    required this.sender,
+    this.type = TransactionType.unknown,
+    this.category = 'General',
+    this.accountType = 'Personal',
+    this.isSynced = false,
+  });
+
+  /// The "Self-Healing" ID Logic
+  /// If M-PESA ID is missing, we create a deterministic hash of body + date.
+  static String generateUniqueId(String body, DateTime date) {
+    final bytes = utf8.encode(body + date.toIso8601String());
+    final digest = sha256.convert(bytes);
+    return 'HASH_${digest.toString().substring(0, 10)}';
+  }
+
+  /// Convert SQLite/Supabase Map to Model
+  factory TransactionModel.fromMap(Map<String, dynamic> map) {
+    return TransactionModel(
+      id: map['id'] ?? '',
+      amount: (map['amount'] as num).toDouble(),
+      body: map['body'] ?? '',
+      date: DateTime.parse(map['date']),
+      sender: map['sender'] ?? 'Unknown',
+      type: TransactionType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => TransactionType.unknown,
+      ),
+      category: map['category'] ?? 'General',
+      accountType: map['account_type'] ?? 'Personal',
+      isSynced: (map['is_synced'] == 1 || map['is_synced'] == true),
+    );
+  }
+
+  /// Convert Model to Map for Database/Supabase
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'amount': amount,
+      'body': body,
+      'date': date.toIso8601String(),
+      'sender': sender,
+      'type': type.name,
+      'category': category,
+      'account_type': accountType,
+      'is_synced': isSynced ? 1 : 0,
+    };
+  }
+}

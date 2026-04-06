@@ -43,31 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-build/
-.dart_tool/
-.packages
-.pub-cache/
-.pub/
-.idea/
-.vscode/
-*.iml
-android/.gradle/
-android/app/build/
-ios/Pods/
-ios/Runner.xcworkspace/
-# Logs
-*.log
-*.txt
-
-# Flutter build
-build/
-.dart_tool/
-
-# Android debug
-*.hprof
-
-# Local tools
-adb*
-scrcpy*
-*.dll
-*.exe

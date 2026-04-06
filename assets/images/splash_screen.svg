@@ -1,0 +1,81 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <!-- Very Light Mint Background -->
+  <rect width="1080" height="1920" fill="#F0F9F4"/>
+
+  <!-- Centered Logo Container -->
+  <g transform="translate(540, 700)">
+    <!-- Emerald Green Background Circle -->
+    <circle cx="0" cy="0" r="180" fill="#2ECC71"/>
+
+    <!-- Mint Leaf Shape (stylized, organic) -->
+    <path d="M0 -120
+             C0 -120 -42 -75 -57 -22
+             C-72 33 -42 105 0 140
+             C42 105 72 33 57 -22
+             C42 -75 0 -120 0 -120Z"
+          fill="#FFFFFF" opacity="0.95"/>
+
+    <!-- Inner Leaf Detail -->
+    <path d="M0 -90
+             C0 -90 -27 -52 -38 -15
+             C-49 22 -34 78 0 110
+             C34 78 49 22 38 -15
+             C27 -52 0 -90 0 -90Z"
+          fill="#2ECC71" opacity="0.3"/>
+
+    <!-- Lightning Bolt (upward, geometric, integrated with leaf) -->
+    <path d="M10 -90
+             L-8 -40
+             L14 -40
+             L-4 20
+             L22 -45
+             L0 -45
+             Z"
+          fill="#2ECC71"
+          stroke="#FFFFFF"
+          stroke-width="2"
+          stroke-linejoin="round"/>
+
+    <!-- Bolt Highlight -->
+    <path d="M7 -75
+             L-3 -45
+             L7 -45
+             Z"
+          fill="#FFFFFF"
+          opacity="0.6"/>
+
+    <!-- Sprout accent at top -->
+    <ellipse cx="0" cy="-135" rx="9" ry="15" fill="#FFFFFF" opacity="0.8"/>
+    <ellipse cx="0" cy="-142" rx="4.5" ry="9" fill="#2ECC71" opacity="0.5"/>
+  </g>
+
+  <!-- MINT Text - Google Fonts Poppins Bold -->
+  <text x="540" y="980"
+        font-family="Poppins, Arial, sans-serif"
+        font-weight="700"
+        font-size="72"
+        fill="#2ECC71"
+        text-anchor="middle"
+        letter-spacing="8">MINT</text>
+
+  <!-- Ledger & Sync subtitle -->
+  <text x="540" y="1030"
+        font-family="Poppins, Arial, sans-serif"
+        font-weight="400"
+        font-size="24"
+        fill="#95A5A6"
+        text-anchor="middle"
+        letter-spacing="2">Ledger &amp; Sync</text>
+
+  <!-- Bottom tagline (optional, subtle) -->
+  <text x="540" y="1750"
+        font-family="Poppins, Arial, sans-serif"
+        font-weight="300"
+        font-size="16"
+        fill="#BDC3C7"
+        text-anchor="middle">M-PESA Transaction Tracker</text>
+
+  <!-- Decorative subtle elements -->
+  <circle cx="540" cy="700" r="200" stroke="#2ECC71" stroke-width="1" fill="none" opacity="0.1"/>
+  <circle cx="540" cy="700" r="220" stroke="#2ECC71" stroke-width="1" fill="none" opacity="0.05"/>
+</svg>

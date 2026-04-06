@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint Asset Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+        .asset-container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2ECC71;
+            margin-bottom: 10px;
+        }
+        .instructions {
+            max-width: 600px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2ECC71;
+        }
+        .instructions h3 {
+            color: #2C3E50;
+            margin-top: 0;
+        }
+        .instructions ol {
+            color: #555;
+            line-height: 1.8;
+        }
+        .instructions code {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #2ECC71;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="instructions">
+        <h3>🎨 Mint Asset Generation Instructions</h3>
+        <ol>
+            <li>Right-click on each preview below and select "Save Image As..."</li>
+            <li>Save the <strong>Launcher Icon</strong> as <code>mint_logo.png</code> (512x512)</li>
+            <li>Save the <strong>Splash Screen</strong> as <code>splash.png</code> (1080x1920)</li>
+            <li>Place files in <code>assets/icon/</code> and <code>assets/images/</code> respectively</li>
+            <li>Run <code>flutter pub run flutter_launcher_icons</code> to generate adaptive icons</li>
+        </ol>
+        <p><strong>Alternative:</strong> Use an online SVG to PNG converter with the SVG files in the assets folder.</p>
+    </div>
+
+    <!-- Launcher Icon Preview -->
+    <div class="asset-container">
+        <h2>📱 Launcher Icon (512x512)</h2>
+        <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background Circle -->
+            <circle cx="256" cy="256" r="256" fill="#FFFFFF"/>
+
+            <!-- Emerald Green Background Circle -->
+            <circle cx="256" cy="256" r="240" fill="#2ECC71"/>
+
+            <!-- Mint Leaf Shape -->
+            <path d="M256 100 C256 100 200 150 180 220 C160 290 200 380 256 420 C312 380 352 290 332 220 C312 150 256 100 256 100Z" fill="#FFFFFF" opacity="0.95"/>
+
+            <!-- Inner Leaf Detail -->
+            <path d="M256 130 C256 130 220 170 205 220 C190 270 210 340 256 380 C302 340 322 270 307 220 C292 170 256 130 256 130Z" fill="#2ECC71" opacity="0.3"/>
+
+            <!-- Lightning Bolt -->
+            <path d="M270 160 L245 230 L275 230 L250 310 L285 220 L255 220 Z" fill="#2ECC71" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
+
+            <!-- Bolt Highlight -->
+            <path d="M265 175 L252 215 L265 215 Z" fill="#FFFFFF" opacity="0.6"/>
+
+            <!-- Sprout accent -->
+            <ellipse cx="256" cy="95" rx="12" ry="20" fill="#FFFFFF" opacity="0.8"/>
+            <ellipse cx="256" cy="88" rx="6" ry="12" fill="#2ECC71" opacity="0.5"/>
+        </svg>
+    </div>
+
+    <!-- Splash Screen Preview -->
+    <div class="asset-container">
+        <h2>🚀 Splash Screen (1080x1920)</h2>
+        <svg width="540" height="960" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="1080" height="1920" fill="#F0F9F4"/>
+
+            <!-- Centered Logo -->
+            <g transform="translate(540, 700)">
+                <circle cx="0" cy="0" r="180" fill="#2ECC71"/>
+                <path d="M0 -120 C0 -120 -42 -75 -57 -22 C-72 33 -42 105 0 140 C42 105 72 33 57 -22 C42 -75 0 -120 0 -120Z" fill="#FFFFFF" opacity="0.95"/>
+                <path d="M0 -90 C0 -90 -27 -52 -38 -15 C-49 22 -34 78 0 110 C34 78 49 22 38 -15 C27 -52 0 -90 0 -90Z" fill="#2ECC71" opacity="0.3"/>
+                <path d="M10 -90 L-8 -40 L14 -40 L-4 20 L22 -45 L0 -45 Z" fill="#2ECC71" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M7 -75 L-3 -45 L7 -45 Z" fill="#FFFFFF" opacity="0.6"/>
+                <ellipse cx="0" cy="-135" rx="9" ry="15" fill="#FFFFFF" opacity="0.8"/>
+                <ellipse cx="0" cy="-142" rx="4.5" ry="9" fill="#2ECC71" opacity="0.5"/>
+            </g>
+
+            <!-- MINT Text -->
+            <text x="540" y="980" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="72" fill="#2ECC71" text-anchor="middle" letter-spacing="8">MINT</text>
+
+            <!-- Subtitle -->
+            <text x="540" y="1030" font-family="Poppins, Arial, sans-serif" font-weight="400" font-size="24" fill="#95A5A6" text-anchor="middle" letter-spacing="2">Ledger & Sync</text>
+
+            <!-- Tagline -->
+            <text x="540" y="1750" font-family="Poppins, Arial, sans-serif" font-weight="300" font-size="16" fill="#BDC3C7" text-anchor="middle">M-PESA Transaction Tracker</text>
+
+            <!-- Decorative circles -->
+            <circle cx="540" cy="700" r="200" stroke="#2ECC71" stroke-width="1" fill="none" opacity="0.1"/>
+            <circle cx="540" cy="700" r="220" stroke="#2ECC71" stroke-width="1" fill="none" opacity="0.05"/>
+        </svg>
+    </div>
+
+    <script>
+        // Auto-download helper - press 'D' to download all
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'd' || e.key === 'D') {
+                alert('To save: Right-click each image → Save Image As');
+            }
+        });
+    </script>
+</body>
+</html>

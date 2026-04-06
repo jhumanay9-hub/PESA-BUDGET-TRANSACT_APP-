@@ -1,4 +1,3 @@
-import com.android.build.gradle.BaseExtension
 allprojects {
     repositories {
         google()
@@ -24,14 +23,25 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 subprojects {
-    // This applies the fix to all plugins that use the Android Library or Application plugin
-    plugins.whenPluginAdded {
-        if (this is com.android.build.gradle.api.AndroidBasePlugin || 
-            this.javaClass.name.contains("com.android.build.gradle.BasePlugin")) {
-            val android = project.extensions.getByName("android") as com.android.build.gradle.BaseExtension
-            if (android.namespace == null) {
-                android.namespace = project.group.toString()
+    val setupNamespace: (Project) -> Unit = { p ->
+        if (p.hasProperty("android")) {
+            val android = p.extensions.getByName("android") as com.android.build.gradle.BaseExtension
+
+            // 1. Target the telephony package specifically
+            if (p.name == "telephony") {
+                android.namespace = "com.shounakmulay.telephony"
+            }
+            // 2. Safety net for any other legacy plugins missing a namespace
+            else if (android.namespace == null) {
+                android.namespace = "com.mint.transaction_app.${p.name.replace("-", "_")}"
             }
         }
+    }
+
+    // If already evaluated, run immediately. If not, wait for afterEvaluate.
+    if (project.state.executed) {
+        setupNamespace(project)
+    } else {
+        afterEvaluate { setupNamespace(project) }
     }
 }

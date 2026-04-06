@@ -1,0 +1,26 @@
+# Flutter Native Splash Configuration
+# Run: flutter pub run flutter_native_splash:create
+
+flutter_native_splash:
+  # Background color - Light Mint
+  color: "#F0F9F4"
+
+  # Splash image (create this PNG from the SVG)
+  image: "assets/images/splash.png"
+
+  # Platforms
+  android: true
+  ios: true
+  web: false
+
+  # Android specific
+  android_12:
+    color: "#F0F9F4"
+    image: "assets/images/splash.png"
+
+  # Branding (optional - bottom logo)
+  # branding: "assets/images/branding.png"
+  # branding_mode: "bottom"
+
+  # Fullscreen mode
+  fullscreen: true

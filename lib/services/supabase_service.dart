@@ -1,163 +1,112 @@
-import 'dart:developer' as developer;
-import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'auth_service.dart';
-import 'db_helper.dart';
-import 'network_service.dart';
-import 'logger.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:transaction_app/core/logger.dart';
+import 'package:transaction_app/data/database_helper.dart';
+import 'package:transaction_app/services/connectivity_service.dart';
 
-/// Base class for all Supabase-related services.
-/// Provides common access to the client, connectivity checks, and logging.
-abstract class SupabaseService {
-  SupabaseClient get client => Supabase.instance.client;
+class SupabaseService {
+  final _supabase = Supabase.instance.client;
+  final _dbHelper = DatabaseHelper();
+  final _connectivityService = ConnectivityService();
 
-  /// Logs a message to the developer console.
-  void log(String message) {
-    developer.log('[SupabaseService] $message', name: 'service.supabase');
-  }
-
-  /// Ensures an active internet connection before performing cloud operations.
-  Future<bool> ensureConnection() async {
-    final results = await NetworkService().checkConnectivity();
-    final isOnline = NetworkService().isOnline(results);
-    if (!isOnline) {
-      log('Connectivity Check: OFFLINE');
-      return false;
+  /// THE UNIVERSAL SYNC ENGINE
+  /// This version prioritizes local state and handles offline gracefully.
+  Future<void> syncLocalToCloud() async {
+    // 1. UNIVERSAL CONNECTIVITY CHECK (Using ConnectivityService)
+    if (!await _connectivityService.hasInternet()) {
+      AppLogger.logWarning(
+          'Sync: Device is offline. Data safe in Local Ledger.');
+      return;
     }
-    return true;
-  }
-}
 
-
-class SupabaseSyncService extends SupabaseService {
-  /// Queries local DB tables and syncs them to Supabase.
-  /// Uses compute() to offload JSON/Network work to a background isolate.
-  Future<void> syncToCloud() async {
-    try {
-      // Check network connectivity
-      final connectivityResults = await NetworkService().checkConnectivity();
-      final isOnline = NetworkService().isOnline(connectivityResults);
-      if (!isOnline) {
-        log('SupabaseSyncService: Offline, sync aborted.');
-        return;
-      }
-
-      // Attempt to promote any offline-registered local accounts to cloud first
-      await _promoteOfflineUserIfNeeded();
-
-      // Check sync method preference
-      final prefs = await SharedPreferences.getInstance();
-      final syncMethod = prefs.getString('sync_method') ?? 'mobile';
-      if (syncMethod == 'wifi' && !connectivityResults.contains(ConnectivityResult.wifi)) {
-        log('SupabaseSyncService: WiFi-only mode and no WiFi connection, sync aborted.');
-        return;
-      }
-
-      final db = await DbHelper.getDatabase();
-      final transactions = await db.query('transactions');
-
-      if (transactions.isEmpty) {
-        log('SupabaseSyncService: No transactions to sync.');
-        return;
-      }
-
-      final userId = client.auth.currentUser?.id;
-      if (userId == null) {
-        log('SupabaseSyncService: No authenticated user found. Sync aborted.');
-        return;
-      }
-
-      await compute(_performSupabaseSync, {
-        'transactions': transactions,
-        'userId': userId,
-      });
-    } catch (e, st) {
-      Logger.logError('SupabaseSyncService.syncToCloud error: $e', st);
+    // 2. Check network quality for adaptive sync
+    final quality = await _connectivityService.getNetworkQuality();
+    if (quality == NetworkQuality.poor || quality == NetworkQuality.none) {
+      AppLogger.logWarning(
+          'Sync: Network quality too poor ($quality). Data safe in Local Ledger.');
+      return;
     }
-  }
 
-  /// Promotes a locally-registered offline user to Supabase when internet becomes available.
-  Future<void> _promoteOfflineUserIfNeeded() async {
     try {
-      final db = await DbHelper.getDatabase();
-      final offlineUsers = await db.query(
-        'users',
-        where: 'is_synced_to_cloud = 0',
-        limit: 1,
+      // 2. SESSION CHECK
+      final session = _supabase.auth.currentSession;
+      if (session == null) {
+        AppLogger.logWarning('Sync: No active cloud session. Staying Local.');
+        return;
+      }
+
+      // 3. FETCH UNSYNCED RECORDS
+      final db = await _dbHelper.database;
+      final List<Map<String, dynamic>> unsyncedMaps = await db.query(
+        DatabaseHelper.tableTransactions,
+        where: 'is_synced = ?',
+        whereArgs: [0],
       );
-      if (offlineUsers.isEmpty) {
+
+      if (unsyncedMaps.isEmpty) {
+        AppLogger.logInfo('Sync: Local and Cloud are identical.');
         return;
       }
-      final user = offlineUsers.first;
-      final identifier = user['identifier'] as String;
-      const storage = FlutterSecureStorage();
-      final password = await storage.read(key: 'user_password');
-      if (password == null || password.isEmpty) {
-        log('Promotion skipped: No password stored for offline user');
-        return;
+
+      AppLogger.logInfo(
+          'Sync: Pushing ${unsyncedMaps.length} items to Cloud...');
+
+      // 4. PREPARE DATA (Multi-tenant safe)
+      final List<Map<String, dynamic>> uploadData = unsyncedMaps.map((map) {
+        var cleanMap = Map<String, dynamic>.from(map);
+        cleanMap.remove('is_synced');
+        cleanMap['user_id'] = session.user.id;
+        return cleanMap;
+      }).toList();
+
+      // 5. PERFORM UPSERT (Network intensive part)
+      // We use a timeout to ensure the app doesn't wait forever on poor 3G/EDGE.
+      await _supabase
+          .from('transactions')
+          .upsert(uploadData, onConflict: 'id')
+          .timeout(const Duration(seconds: 15));
+
+      // 6. BATCH UPDATE LOCAL DB (Only if Upsert succeeded)
+      final batch = db.batch();
+      for (var record in unsyncedMaps) {
+        batch.update(
+          DatabaseHelper.tableTransactions,
+          {'is_synced': 1},
+          where: 'id = ?',
+          whereArgs: [record['id']],
+        );
       }
-      // Attempt cloud sign up
-      try {
-        final response = await AuthService().signUp(identifier, password);
-        if (response.user != null) {
-          // Mark user as synced
-          await db.update(
-            'users',
-            {'is_synced_to_cloud': 1},
-            where: 'identifier = ?',
-            whereArgs: [identifier],
-          );
-          log('Offline user promoted to cloud: $identifier');
-          // Update prefs to indicate cloud login
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('isLoggedIn', true);
-        } else {
-          log('Offline user promotion failed: null user response');
-        }
-      } on AuthException catch (e) {
-        // If user already exists in Supabase, mark as synced
-        if (e.message.toLowerCase().contains('already') || e.code == 'already_exists') {
-          await db.update(
-            'users',
-            {'is_synced_to_cloud': 1},
-            where: 'identifier = ?',
-            whereArgs: [identifier],
-          );
-          log('User already exists in cloud, marked as synced: $identifier');
-        } else {
-          rethrow;
-        }
-      }
-    } catch (e, st) {
-      Logger.logError('Offline user promotion error: $e', st);
+      await batch.commit(noResult: true);
+
+      AppLogger.logSuccess('Sync: Cloud updated successfully.');
+    } on SocketException {
+      AppLogger.logWarning('Sync: Network reachability lost during upload.');
+      // Clear connectivity cache to force fresh check
+      _connectivityService.clearCache();
+    } on HttpException {
+      AppLogger.logError('Sync: Supabase service unreachable.', '');
+    } catch (e) {
+      AppLogger.logError('Sync: Unexpected cloud error.', e);
     }
   }
-}
 
-/// Top-level function executed inside the background isolate.
-Future<void> _performSupabaseSync(Map<String, dynamic> data) async {
-  try {
-    final List<Map<String, dynamic>> rawTransactions = List<Map<String, dynamic>>.from(data['transactions']);
-    final String userId = data['userId'];
-    final supabase = Supabase.instance.client;
+  /// RESILIENT CHANGE LISTENER
+  /// Only subscribes if a session exists to prevent unnecessary background errors.
+  void subscribeToChanges() {
+    if (_supabase.auth.currentSession == null) return;
 
-    // Prepare transactions with user_id
-    final transactionsToUpsert = rawTransactions.map((tx) {
-      final newTx = Map<String, dynamic>.from(tx);
-      newTx['user_id'] = userId;
-      return newTx;
-    }).toList();
-
-    // Perform Upsert
-    await supabase
-        .from('transactions')
-        .upsert(transactionsToUpsert);
-
-    debugPrint('SupabaseSyncService: Successfully synced ${transactionsToUpsert.length} transactions.');
-  } catch (e) {
-    debugPrint('SupabaseSyncService._performSupabaseSync error: $e');
+    try {
+      _supabase.from('transactions').stream(primaryKey: ['id']).listen(
+        (data) {
+          AppLogger.logInfo(
+              'Sync: Remote update received (${data.length} items)');
+          // Future: Logic to pull remote updates into local SQLite
+        },
+        onError: (error) =>
+            AppLogger.logError('Sync: Stream error ignored.', error),
+      );
+    } catch (e) {
+      AppLogger.logError('Sync: Could not initialize stream.', e);
+    }
   }
 }
